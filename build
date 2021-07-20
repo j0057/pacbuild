@@ -38,6 +38,13 @@ get_srcinfo() {
     cat "$1/.SRCINFO"
 }
 
+get_package_version() {
+    get_srcinfo "$1" \
+        | awk '$1=="pkgver"{pkgver=$3}
+               $1=="pkgrel"{pkgrel=$3}
+               END{print pkgver "-" pkgrel}'
+}
+
 get_package_filenames() {
     get_srcinfo "$1" \
         | awk '$1=="pkgver"{pkgver=$3}
@@ -65,14 +72,12 @@ build_package() {
 
 build_packages() {
     for pkg in $(list_aur_packages); do
-        echo "[$pkg] getting current version"
-
         if package_is_up_to_date "$pkg"; then
-            echo "[$pkg] up to date; skipping"
+            echo "[$pkg] already have version $(get_package_version "$pkg"). skipping!"
             continue
         fi
 
-        echo "[$pkg] building"
+        echo "[$pkg] building $(get_package_version "$pkg")"
         (build_package "$pkg")
 
         for pkgfile in $(get_package_filenames "$pkg"); do
