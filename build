@@ -6,6 +6,12 @@ set -euo pipefail
 REPO=./pkg
 NAME=aur64
 
+# XXX: how to deal with GPG keys?
+#      for example: gpg --keyserver keys.openpgp.org --recv-keys 3A5CA953F73C700D
+#      https://blog.bastelfreak.de/2016/05/creating-a-reliable-arch-linux-package-build-environment/
+#      ==> okay, this took only 4 hours, but: import the fk'in key into my own gpg dir.
+#          that's it. that's the whole trick. i'm going to kill a puppy now.
+
 _cmd() { echo "[*] $@"; "$@"; }
 _sudo() { echo "[!] $@"; sudo "$@"; }
 
