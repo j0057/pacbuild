@@ -31,9 +31,15 @@ list_aur_packages() {
         | awk '$1=="160000"{print $4}'
 }
 
+get_srcinfo() {
+    if [ ! -f "$1/.SRCINFO" ]; then
+        (cd "$1"; makepkg --printsrcinfo >.SRCINFO)
+    fi
+    cat "$1/.SRCINFO"
+}
+
 get_package_filenames() {
-    cd "$1"
-    makepkg --printsrcinfo \
+    get_srcinfo "$1" \
         | awk '$1=="pkgver"{pkgver=$3}
                $1=="pkgrel"{pkgrel=$3}
                /^pkgname = /{print $3 "-" pkgver "-" pkgrel "-" arch ".pkg.tar.zst"}' \
