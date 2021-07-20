@@ -1,0 +1,82 @@
+#!/bin/bash
+
+set -euo pipefail
+
+# TODO: configuration
+REPO=./pkg
+NAME=aur64
+
+_cmd() { echo "[*] $@"; "$@"; }
+_sudo() { echo "[!] $@"; sudo "$@"; }
+
+init_repository() {
+    if [ ! -f "$REPO/$NAME.db.tar.gz" ]; then
+        _cmd mkdir -p "$REPO"
+        _cmd tar cfT "$REPO/$NAME.db.tar.gz" /dev/null
+        _cmd ln -s "$NAME.db.tar.gz" "$REPO/$NAME.db"
+        _sudo pacman -Syy
+    fi
+}
+
+list_aur_packages() {
+    git ls-files -s \
+        | awk '$1=="160000"{print $4}'
+}
+
+get_package_filenames() {
+    cd "$1"
+    makepkg --printsrcinfo \
+        | awk '$1=="pkgver"{pkgver=$3}
+               $1=="pkgrel"{pkgrel=$3}
+               /^pkgname = /{print $3 "-" pkgver "-" pkgrel "-" arch ".pkg.tar.zst"}' \
+               arch="$(uname -m)"
+}
+
+package_is_up_to_date() {
+    local pkgfile result
+    result=0
+    for pkgfile in $(get_package_filenames "$1"); do
+        if [ ! -f "$REPO/$pkgfile" ]; then
+            echo "[$1] missing $pkgfile"
+            result=1
+        fi
+    done
+    [ $result = 0 ]
+}
+
+build_package() {
+    cd "$1"
+    _cmd extra-x86_64-build
+}
+
+build_packages() {
+    for pkg in $(list_aur_packages); do
+        echo "[$pkg] getting current version"
+
+        if package_is_up_to_date "$pkg"; then
+            echo "[$pkg] up to date; skipping"
+            continue
+        fi
+
+        echo "[$pkg] building"
+        (build_package "$pkg")
+
+        for pkgfile in $(get_package_filenames "$pkg"); do
+            _cmd cp "$pkg/$pkgfile" "$REPO"
+            _cmd repo-add --new --remove "$REPO/$NAME.db.tar.gz" "$REPO/$pkgfile"
+        done
+
+        _sudo pacman -Syy
+    done
+}
+
+clean_packages() {
+    for pkg in $(list_aur_packages); do
+        echo "[$pkg] cleaning"
+        (cd $pkg; git clean -dxf)
+    done
+}
+
+init_repository
+build_packages
+clean_packages
