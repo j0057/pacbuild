@@ -18,6 +18,14 @@ init_repository() {
     fi
 }
 
+prepare_chroot() {
+    if [ ! -d abs ]; then
+        _cmd mkdir -p abs
+        _cmd mkarchroot -C /etc/pacman.conf abs/root base-devel
+    fi
+    _cmd arch-nspawn abs/root pacman -Syu
+}
+
 list_aur_packages() {
     git ls-files -s \
         | awk '$1=="160000"{print $4}'
@@ -46,7 +54,7 @@ package_is_up_to_date() {
 
 build_package() {
     cd "$1"
-    _cmd extra-x86_64-build
+    _cmd makechrootpkg -c -r ../../abs
 }
 
 build_packages() {
@@ -78,5 +86,6 @@ clean_packages() {
 }
 
 init_repository
+prepare_chroot
 build_packages
 clean_packages
