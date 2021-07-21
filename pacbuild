@@ -12,8 +12,8 @@ _msg1() { local N=$1; shift; echo -e "\e[1;36m[$N] $@\e[0m"; }
 _msg2() { local N=$1; shift; echo -e "\e[1;32m[$N] $@\e[0m"; }
 _msg3() { local N=$1; shift; echo -e "\e[1;31m[$N] $@\e[0m"; }
 
-_cmd()  { local N=$1; shift; _msg1 "$N" "$@"; "$@"; }
-_sudo() { local N=$1; shift; _msg3 "$N" "$@"; "$@"; }
+_cmd()  { local N=$1; shift; _msg1 "$N" "$@";      "$@"; }
+_sudo() { local N=$1; shift; _msg3 "$N" "$@"; sudo "$@"; }
 
 if [ -f pacbuild.conf ]; then
     . pacbuild.conf
