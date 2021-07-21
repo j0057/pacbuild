@@ -3,8 +3,9 @@
 set -euo pipefail
 
 # TODO: configuration
-REPO=./pkg
+REPO=$PWD/pkg
 NAME=aur64
+ROOT=$PWD/abs
 
 # XXX: how to deal with GPG keys?
 #      for example: gpg --keyserver keys.openpgp.org --recv-keys 3A5CA953F73C700D
@@ -25,11 +26,11 @@ init_repository() {
 }
 
 prepare_chroot() {
-    if [ ! -d abs ]; then
-        _cmd mkdir -p abs
-        _cmd mkarchroot -C /etc/pacman.conf abs/root base-devel
+    if [ ! -d "$ROOT" ]; then
+        _cmd mkdir -p "$ROOT"
+        _cmd mkarchroot -C /etc/pacman.conf "$ROOT/root" base-devel
     fi
-    _cmd arch-nspawn abs/root pacman -Syu
+    _cmd arch-nspawn "$ROOT/root" pacman -Syu
 }
 
 list_aur_packages() {
@@ -73,7 +74,7 @@ package_is_up_to_date() {
 
 build_package() {
     cd "$1"
-    _cmd makechrootpkg -c -r ../../abs
+    _cmd makechrootpkg -c -r "$ROOT"
 }
 
 build_packages() {
