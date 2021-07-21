@@ -13,24 +13,29 @@ ROOT=$PWD/abs
 #      ==> okay, this took only 4 hours, but: import the fk'in key into my own gpg dir.
 #          that's it. that's the whole trick. i'm going to kill a puppy now.
 
-_cmd() { echo "[*] $@"; "$@"; }
-_sudo() { echo "[!] $@"; sudo "$@"; }
+_msg1() { local N=$1; shift; echo -e "\e[1;36m[$N] $@\e[0m"; }
+_msg2() { local N=$1; shift; echo -e "\e[1;32m[$N] $@\e[0m"; }
+_msg3() { local N=$1; shift; echo -e "\e[1;31m[$N] $@\e[0m"; }
+
+_cmd()  { local N=$1; shift; _msg1 "$N" "$@"; "$@"; }
+_sudo() { local N=$1; shift; _msg2 "$N" "$@"; "$@"; }
+
 
 init_repository() {
     if [ ! -f "$REPO/$NAME.db.tar.gz" ]; then
-        _cmd mkdir -p "$REPO"
-        _cmd tar cfT "$REPO/$NAME.db.tar.gz" /dev/null
-        _cmd ln -s "$NAME.db.tar.gz" "$REPO/$NAME.db"
-        _sudo pacman -Syy
+        _cmd repo mkdir -p "$REPO"
+        _cmd repo tar cfT "$REPO/$NAME.db.tar.gz" /dev/null
+        _cmd repo ln -s "$NAME.db.tar.gz" "$REPO/$NAME.db"
+        _sudo repo pacman -Syy
     fi
 }
 
 prepare_chroot() {
     if [ ! -d "$ROOT" ]; then
-        _cmd mkdir -p "$ROOT"
-        _cmd mkarchroot -C /etc/pacman.conf "$ROOT/root" base-devel
+        _cmd root mkdir -p "$ROOT"
+        _cmd root mkarchroot -C /etc/pacman.conf "$ROOT/root" base-devel
     fi
-    _cmd arch-nspawn "$ROOT/root" pacman -Syu
+    _cmd root arch-nspawn "$ROOT/root" pacman -Syu
 }
 
 list_aur_packages() {
@@ -65,7 +70,7 @@ package_is_up_to_date() {
     result=0
     for pkgfile in $(get_package_filenames "$1"); do
         if [ ! -f "$REPO/$pkgfile" ]; then
-            echo "[$1] missing $pkgfile"
+            _msg1 "$1" "missing $pkgfile"
             result=1
         fi
     done
@@ -74,32 +79,31 @@ package_is_up_to_date() {
 
 build_package() {
     cd "$1"
-    _cmd makechrootpkg -c -r "$ROOT"
+    _cmd "$1" makechrootpkg -c -r "$ROOT"
 }
 
 build_packages() {
     for pkg in $(list_aur_packages); do
         if package_is_up_to_date "$pkg"; then
-            echo "[$pkg] already have version $(get_package_version "$pkg"). skipping!"
+            _msg2 "$pkg" "skipping: already have version $(get_package_version "$pkg")"
             continue
         fi
 
-        echo "[$pkg] building $(get_package_version "$pkg")"
+        _msg1 "$pkg" "building version $(get_package_version "$pkg")"
         (build_package "$pkg")
 
         for pkgfile in $(get_package_filenames "$pkg"); do
-            _cmd cp "$pkg/$pkgfile" "$REPO"
-            _cmd repo-add --new --remove "$REPO/$NAME.db.tar.gz" "$REPO/$pkgfile"
+            _cmd "$pkg" cp "$pkg/$pkgfile" "$REPO"
+            _cmd "$pkg" repo-add --new --remove "$REPO/$NAME.db.tar.gz" "$REPO/$pkgfile"
         done
 
-        _sudo pacman -Syy
+        _sudo "$pkg" pacman -Syy
     done
 }
 
 clean_packages() {
     for pkg in $(list_aur_packages); do
-        echo "[$pkg] cleaning"
-        (cd $pkg; git clean -dxf)
+        (cd $pkg; _cmd "$pkg" git clean -dxf)
     done
 }
 
