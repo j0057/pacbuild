@@ -2,11 +2,6 @@
 
 set -euo pipefail
 
-# TODO: configuration
-REPO=$PWD/pkg
-NAME=aur64
-ROOT=$PWD/abs
-
 # XXX: how to deal with GPG keys?
 #      for example: gpg --keyserver keys.openpgp.org --recv-keys 3A5CA953F73C700D
 #      https://blog.bastelfreak.de/2016/05/creating-a-reliable-arch-linux-package-build-environment/
@@ -20,6 +15,15 @@ _msg3() { local N=$1; shift; echo -e "\e[1;31m[$N] $@\e[0m"; }
 _cmd()  { local N=$1; shift; _msg1 "$N" "$@"; "$@"; }
 _sudo() { local N=$1; shift; _msg2 "$N" "$@"; "$@"; }
 
+if [ -f pacbuild.conf ]; then
+    . pacbuild.conf
+    : ${NAME:?NAME not set}
+    : ${REPO:?REPO path not set}
+    : ${ROOT:?ROOT path not set}
+else
+    _msg3 config 'error: no pacbuild.conf in current directory' >&2
+    exit 1
+fi
 
 init_repository() {
     if [ ! -f "$REPO/$NAME.db.tar.gz" ]; then
