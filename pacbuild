@@ -13,7 +13,7 @@ _msg2() { local N=$1; shift; echo -e "\e[1;32m[$N] $@\e[0m"; }
 _msg3() { local N=$1; shift; echo -e "\e[1;31m[$N] $@\e[0m"; }
 
 _cmd()  { local N=$1; shift; _msg1 "$N" "$@"; "$@"; }
-_sudo() { local N=$1; shift; _msg2 "$N" "$@"; "$@"; }
+_sudo() { local N=$1; shift; _msg3 "$N" "$@"; "$@"; }
 
 if [ -f pacbuild.conf ]; then
     . pacbuild.conf
