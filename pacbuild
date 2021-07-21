@@ -71,8 +71,7 @@ get_package_filenames() {
 }
 
 package_is_up_to_date() {
-    local pkgfile result
-    result=0
+    local pkgfile result=0
     for pkgfile in $(get_package_filenames "$1"); do
         if [ ! -f "$REPO/$pkgfile" ]; then
             _msg1 "$1" "missing $pkgfile"
@@ -88,6 +87,7 @@ build_package() {
 }
 
 build_packages() {
+    local pkg pkgfile
     for pkg in $(list_aur_packages); do
         if package_is_up_to_date "$pkg"; then
             _msg2 "$pkg" "skipping: already have version $(get_package_version "$pkg")"
@@ -107,6 +107,7 @@ build_packages() {
 }
 
 clean_packages() {
+    local pkg
     for pkg in $(list_aur_packages); do
         (cd $pkg; _cmd "$pkg" git clean -dxf)
     done
