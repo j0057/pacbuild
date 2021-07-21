@@ -81,11 +81,6 @@ package_is_up_to_date() {
     [ $result = 0 ]
 }
 
-build_package() {
-    cd "$1"
-    _cmd "$1" makechrootpkg -c -r "$ROOT"
-}
-
 build_packages() {
     local pkg pkgfile
     for pkg in $(list_aur_packages); do
@@ -95,7 +90,7 @@ build_packages() {
         fi
 
         _msg1 "$pkg" "building version $(get_package_version "$pkg")"
-        (build_package "$pkg")
+        (cd "$pkg"; _cmd "$pkg" makechrootpkg -c -r "$ROOT")
 
         for pkgfile in $(get_package_filenames "$pkg"); do
             _cmd "$pkg" cp "$pkg/$pkgfile" "$REPO"
