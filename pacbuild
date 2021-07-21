@@ -97,18 +97,12 @@ build_packages() {
             _cmd "$pkg" repo-add --new --remove "$REPO/$NAME.db.tar.gz" "$REPO/$pkgfile"
         done
 
-        _sudo "$pkg" pacman -Syy
-    done
-}
+        (cd "$pkg"; _cmd "$pkg" git clean -dxf)
 
-clean_packages() {
-    local pkg
-    for pkg in $(list_aur_packages); do
-        (cd $pkg; _cmd "$pkg" git clean -dxf)
+        _sudo "$pkg" pacman -Syy
     done
 }
 
 init_repository
 prepare_chroot
 build_packages
-clean_packages
