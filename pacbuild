@@ -93,27 +93,34 @@ package_is_up_to_date() {
 build_packages() {
     local pkg pkgfile
     for pkg in $(list_aur_packages); do
+        # skip if package file is already there
         if package_is_up_to_date "$pkg"; then
             _msg2 "$pkg" "skipping: already have version $(get_package_version "$pkg")"
             continue
         fi
 
+        # download sources, and as a side effect, update the pkgver= line for VCS packages
         (cd "$pkg"; _cmd "$pkg" makechrootpkg -c -r "$LIB/build" -- --syncdeps --noconfirm --nobuild)
 
+        # given the new version number, skip if package file is already there
         if package_is_up_to_date "$pkg"; then
             _msg2 "$pkg" "skipping: already have version $(get_package_version "$pkg")"
             continue
         fi
 
+        # build package
         _msg1 "$pkg" "building version $(get_package_version "$pkg")"
         (cd "$pkg"; _cmd "$pkg" makechrootpkg -c -r "$LIB/build")
 
+        # add new package file to repo
         for pkgfile in $(get_package_filenames "$pkg"); do
             _cmd "$pkg" repo-add --new --remove "$PKGDEST/$NAME.db.tar.gz" "$PKGDEST/$pkgfile"
         done
 
+        # clean any detritus in pkg
         (cd "$pkg"; _cmd "$pkg" git clean -dxf)
 
+        # refresh pacman sync database
         _sudo "$pkg" pacman -Syy
     done
 }
