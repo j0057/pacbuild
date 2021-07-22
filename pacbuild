@@ -100,7 +100,7 @@ build_packages() {
         fi
 
         # download sources, and as a side effect, update the pkgver= line for VCS packages
-        (cd "$pkg"; _cmd "$pkg" makechrootpkg -c -r "$LIB/build" -- --syncdeps --noconfirm --nobuild)
+        (cd "$pkg"; _cmd "$pkg" makepkg --nodeps --nobuild)
 
         # given the new version number, skip if package file is already there
         if package_is_up_to_date "$pkg"; then
