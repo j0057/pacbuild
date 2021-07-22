@@ -19,7 +19,6 @@ if [ -f pacbuild.conf ]; then
     . pacbuild.conf
     : ${NAME:?NAME not set}
     : ${REPO:?REPO path not set}
-    : ${ROOT:?ROOT path not set}
     : ${LIB:?LIB path not set}
 else
     _msg3 config 'error: no pacbuild.conf in current directory' >&2
@@ -39,11 +38,11 @@ init_repository() {
 }
 
 prepare_chroot() {
-    if [ ! -d "$ROOT" ]; then
-        _cmd root mkdir -p "$ROOT"
-        _cmd root mkarchroot -C /etc/pacman.conf "$ROOT/root" base-devel
+    if [ ! -d "$LIB/build" ]; then
+        _cmd root mkdir -p "$LIB/build"
+        _cmd root mkarchroot -C /etc/pacman.conf "$LIB/build/root" base-devel
     fi
-    _cmd root arch-nspawn "$ROOT/root" pacman -Syu
+    _cmd root arch-nspawn "$LIB/build/root" pacman -Syu
 }
 
 list_aur_packages() {
@@ -94,7 +93,7 @@ build_packages() {
         fi
 
         _msg1 "$pkg" "building version $(get_package_version "$pkg")"
-        (cd "$pkg"; _cmd "$pkg" makechrootpkg -c -r "$ROOT")
+        (cd "$pkg"; _cmd "$pkg" makechrootpkg -c -r "$LIB/build")
 
         for pkgfile in $(get_package_filenames "$pkg"); do
             _cmd "$pkg" cp "$pkg/$pkgfile" "$REPO"
