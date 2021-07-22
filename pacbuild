@@ -20,10 +20,14 @@ if [ -f pacbuild.conf ]; then
     : ${NAME:?NAME not set}
     : ${REPO:?REPO path not set}
     : ${ROOT:?ROOT path not set}
+    : ${LIB:?LIB path not set}
 else
     _msg3 config 'error: no pacbuild.conf in current directory' >&2
     exit 1
 fi
+
+export SRCDEST="$LIB/src"
+export LOGDEST="$LIB/log"
 
 init_repository() {
     if [ ! -f "$REPO/$NAME.db.tar.gz" ]; then
