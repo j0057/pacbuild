@@ -115,7 +115,7 @@ build_packages() {
         (cd "$pkg"; _cmd "$pkg" git clean -dxf)
 
         # refresh pacman sync database
-        _sudo "$pkg" pacman -Syy --noprogress --color
+        _sudo "$pkg" pacman -Syy --noprogress --color never
     done
 }
 
