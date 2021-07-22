@@ -23,14 +23,31 @@ Create a new Git repository and add this repository as a submodule:
 Add a configuration file called `pacbuild.conf`:
 
     NAME=aur64
-    REPO=/var/lib/aur64/pkg
-    ROOT=/var/lib/aur64/abs
+    LIB=/var/lib/aur64
 
-Where `NAME` is the name you wish to use in Pacman, `REPO` is where the
-database file and the package files will be stored, and `ROOT` is where the
-chroot for building the packages will be stored.
+Where `NAME` is the name you wish to use in Pacman, and `LIB` is the path
+various artifacts will be stored:
 
-Next, to bootstrap, build the repo and install pacbuild:
+    /var/lib/aur64
+    ├── build
+    │   └── ...
+    ├── log
+    │   └── ...
+    ├── pkg
+    │   ├── aur64.db -> aur64.db.tar.gz
+    │   ├── aur64.db.tar.gz
+    │   ├── aur64.files -> aur64.files.tar.gz
+    │   ├── aur64.files.tar.gz
+    │   └── pacbuild-git-0.1.27.gaddf8af-1-any.pkg.tar.zst
+    └── src
+        └── ...
+
+Where `build` will store the chroots for `arch-nspawn` and `mkchrootpkg`, `log`
+will store the build log files, `pkg` will be the actual Pacman repo, and `src`
+will store the source files.
+
+Next, to bootstrap, build the repo by calling `pacbuild` directly inside the
+submodule, and then install pacbuild:
 
     ./pacbuild/pacbuild
     sudo pacman -Syu pacbuild
