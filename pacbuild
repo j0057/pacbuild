@@ -35,6 +35,12 @@ init_repository() {
         _cmd repo ln -s "$NAME.db.tar.gz" "$PKGDEST/$NAME.db"
         _sudo repo pacman -Syy
     fi
+    if [ ! -d "$SRCDEST" ]; then
+        _cmd repo mkdir -p "$SRCDEST"
+    fi
+    if [ ! -d "$LOGDEST" ]; then
+        _cmd repo mkdir -p "$LOGDEST"
+    fi
 }
 
 prepare_chroot() {
