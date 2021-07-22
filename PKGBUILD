@@ -1,7 +1,7 @@
 # Maintainer: Joost Molenaar <jjm@j0057.nl>
 
 pkgname=pacbuild-git
-pkgver=git
+pkgver=0.1
 pkgrel=1
 pkgdesc='Script that creates packages for a Pacman repository'
 arch=('any')
@@ -11,15 +11,15 @@ depends=('devtools')
 makedepends=('git')
 provides=("${pkgname%-git}")
 conflicts=("${pkgname%-git}")
-source=()
-md5sums=()
+source=(pacbuild)
+md5sums=(SKIP)
 
 pkgver() {
-    cd "$srcdir"
-    git describe | sed 's/-/./g'
+    git -C "$srcdir" describe 2>/dev/null | sed 's/-/./g' || awk '$1=="pkgver"{print $2}' FS='=' PKGBUILD
 }
+[ "$pkgver" != 0.1 ] && unset -f pkgver
 
 package() {
     install -o root -g root -m 755 -d "$pkgdir/usr/bin"
-    install -o root -g root -m 755 '../pacbuild' -t "$pkgdir/usr/bin"
+    install -o root -g root -m 755 "$srcdir/pacbuild" -t "$pkgdir/usr/bin"
 }
