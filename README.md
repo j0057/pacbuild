@@ -116,3 +116,10 @@ This is a D.I.Y. process:
   remove it from `.gitmodules`.
 
 [ra]: https://man.archlinux.org/man/repo-add.8.en
+
+## Dealing with GPG keys
+
+I searched high and low for how to pass some GPG keys to `mkchrootpkg`, and the
+answer is... add them to your own keyring, outside the build container. Please
+let me know if me telling you this essential information has saved you from
+wasting four hours of reading source code.

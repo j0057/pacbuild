@@ -2,12 +2,6 @@
 
 set -euo pipefail
 
-# XXX: how to deal with GPG keys?
-#      for example: gpg --keyserver keys.openpgp.org --recv-keys 3A5CA953F73C700D
-#      https://blog.bastelfreak.de/2016/05/creating-a-reliable-arch-linux-package-build-environment/
-#      ==> okay, this took only 4 hours, but: import the fk'in key into my own gpg dir.
-#          that's it. that's the whole trick. i'm going to kill a puppy now.
-
 _msg1() { local N=$1; shift; echo -e "\e[1;36m[$N] $@\e[0m"; }
 _msg2() { local N=$1; shift; echo -e "\e[1;32m[$N] $@\e[0m"; }
 _msg3() { local N=$1; shift; echo -e "\e[1;31m[$N] $@\e[0m"; }
