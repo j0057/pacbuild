@@ -18,7 +18,6 @@ _sudo() { local N=$1; shift; _msg3 "$N" "$@"; sudo "$@"; }
 if [ -f pacbuild.conf ]; then
     . pacbuild.conf
     : ${NAME:?NAME not set}
-    : ${REPO:?REPO path not set}
     : ${LIB:?LIB path not set}
 else
     _msg3 config 'error: no pacbuild.conf in current directory' >&2
@@ -26,13 +25,14 @@ else
 fi
 
 export SRCDEST="$LIB/src"
+export PKGDEST="$LIB/pkg"
 export LOGDEST="$LIB/log"
 
 init_repository() {
-    if [ ! -f "$REPO/$NAME.db.tar.gz" ]; then
-        _cmd repo mkdir -p "$REPO"
-        _cmd repo tar cfT "$REPO/$NAME.db.tar.gz" /dev/null
-        _cmd repo ln -s "$NAME.db.tar.gz" "$REPO/$NAME.db"
+    if [ ! -f "$PKGDEST/$NAME.db.tar.gz" ]; then
+        _cmd repo mkdir -p "$PKGDEST"
+        _cmd repo tar cfT "$PKGDEST/$NAME.db.tar.gz" /dev/null
+        _cmd repo ln -s "$NAME.db.tar.gz" "$PKGDEST/$NAME.db"
         _sudo repo pacman -Syy
     fi
 }
@@ -76,7 +76,7 @@ get_package_filenames() {
 package_is_up_to_date() {
     local pkgfile result=0
     for pkgfile in $(get_package_filenames "$1"); do
-        if [ ! -f "$REPO/$pkgfile" ]; then
+        if [ ! -f "$PKGDEST/$pkgfile" ]; then
             _msg1 "$1" "missing $pkgfile"
             result=1
         fi
@@ -96,8 +96,7 @@ build_packages() {
         (cd "$pkg"; _cmd "$pkg" makechrootpkg -c -r "$LIB/build")
 
         for pkgfile in $(get_package_filenames "$pkg"); do
-            _cmd "$pkg" cp "$pkg/$pkgfile" "$REPO"
-            _cmd "$pkg" repo-add --new --remove "$REPO/$NAME.db.tar.gz" "$REPO/$pkgfile"
+            _cmd "$pkg" repo-add --new --remove "$PKGDEST/$NAME.db.tar.gz" "$PKGDEST/$pkgfile"
         done
 
         (cd "$pkg"; _cmd "$pkg" git clean -dxf)
