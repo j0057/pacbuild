@@ -57,7 +57,7 @@ list_aur_packages() {
 }
 
 get_srcinfo() {
-    if [ ! -f "$1/.SRCINFO" ]; then
+    if [ ! -f "$1/.SRCINFO" -o "$1/PKGBUILD" -nt "$1/.SRCINFO" ]; then
         (cd "$1"; makepkg --printsrcinfo >.SRCINFO)
     fi
     cat "$1/.SRCINFO"
@@ -93,6 +93,13 @@ package_is_up_to_date() {
 build_packages() {
     local pkg pkgfile
     for pkg in $(list_aur_packages); do
+        if package_is_up_to_date "$pkg"; then
+            _msg2 "$pkg" "skipping: already have version $(get_package_version "$pkg")"
+            continue
+        fi
+
+        (cd "$pkg"; _cmd "$pkg" makechrootpkg -c -r "$LIB/build" -- --syncdeps --noconfirm --nobuild)
+
         if package_is_up_to_date "$pkg"; then
             _msg2 "$pkg" "skipping: already have version $(get_package_version "$pkg")"
             continue
