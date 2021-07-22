@@ -48,7 +48,7 @@ prepare_chroot() {
         _cmd root mkdir -p "$LIB/build"
         _cmd root mkarchroot -C /etc/pacman.conf "$LIB/build/root" base-devel
     fi
-    _cmd root arch-nspawn "$LIB/build/root" pacman -Syu
+    _cmd root arch-nspawn "$LIB/build/root" pacman -Syu --noprogress --color never
 }
 
 list_aur_packages() {
