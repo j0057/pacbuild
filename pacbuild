@@ -111,9 +111,11 @@ build_packages() {
             _cmd "$pkg" repo-add --new --remove "$PKGDEST/$NAME.db.tar.gz" "$PKGDEST/$pkgfile"
         done
 
-        # clean any detritus in pkg
-        _cmd "$pkg" git -C "$pkg" clean -dxf
-        _cmd "$pkg" git -C "$pkg" checkout -- PKGBUILD
+        # clean any leftover files and undo changes to PKGBUILD
+        if [[ -n `git status --porcelain` ]]; then
+            _cmd "$pkg" git -C "$pkg" clean -dxf
+            _cmd "$pkg" git -C "$pkg" checkout -- PKGBUILD
+        fi
 
         # refresh pacman sync database
         _sudo "$pkg" pacman -Syy --noprogress --color never
