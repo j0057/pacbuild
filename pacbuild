@@ -51,10 +51,11 @@ list_aur_packages() {
 }
 
 get_srcinfo() {
-    if [ ! -f "$1/.SRCINFO" -o "$1/PKGBUILD" -nt "$1/.SRCINFO" ]; then
-        (cd "$1"; makepkg --printsrcinfo >.SRCINFO)
+    if [ -f "$1/.SRCINFO" ]; then
+        cat "$1/.SRCINFO"
+    else
+        (cd "$1"; makepkg --printsrcinfo)
     fi
-    cat "$1/.SRCINFO"
 }
 
 get_package_version() {
