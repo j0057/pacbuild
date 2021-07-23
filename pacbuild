@@ -59,10 +59,10 @@ get_srcinfo() {
 }
 
 get_package_version() {
-    get_srcinfo "$1" \
-        | awk '$1=="pkgver"{pkgver=$3}
-               $1=="pkgrel"{pkgrel=$3}
-               END{print pkgver "-" pkgrel}'
+    (set +euo pipefail
+     cd "$1"
+     . PKGBUILD
+     [ "$(type -t pkgver)" = function ] && echo "$(pkgver)-1" || echo "$pkgver-$pkgrel")
 }
 
 get_package_filenames() {
