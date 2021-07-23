@@ -112,7 +112,8 @@ build_packages() {
         done
 
         # clean any detritus in pkg
-        (cd "$pkg"; _cmd "$pkg" git clean -dxf)
+        _cmd "$pkg" git -C "$pkg" git clean -dxf
+        _cmd "$pkg" git -C "$pkg" git checkout -- PKGBUILD
 
         # refresh pacman sync database
         _sudo "$pkg" pacman -Syy --noprogress --color never
