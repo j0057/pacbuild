@@ -81,7 +81,7 @@ package_is_up_to_date() {
             result=1
         fi
     done
-    [ $result = 0 ]
+    return $result
 }
 
 build_packages() {
