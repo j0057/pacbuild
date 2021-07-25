@@ -51,25 +51,25 @@ list_aur_packages() {
 }
 
 get_srcinfo() {
-    if [ -f "$1/.SRCINFO" ]; then
-        cat "$1/.SRCINFO"
-    else
-        (cd "$1"; makepkg --printsrcinfo)
+    if [ ! -f "$1/.SRCINFO" -o "$1/PKGBUILD" -nt "$1/.SRCINFO" ]; then
+        (cd "$1"; makepkg --printsrcinfo >.SRCINFO)
     fi
+    cat "$1/.SRCINFO"
 }
 
 get_package_version() {
-    (set +euo pipefail
-     cd "$1"
-     . PKGBUILD
-     [ "$(type -t pkgver)" = function ] && echo "$(pkgver)-1" || echo "$pkgver-$pkgrel")
+    get_srcinfo "$1" \
+        | awk '$1=="pkgver"{pkgver=$3}
+               $1=="pkgrel"{pkgrel=$3}
+               END{print pkgver "-" pkgrel}'
 }
 
 get_package_filenames() {
     get_srcinfo "$1" \
-        | awk '$1=="arch"&&$3=="any"{arch=$3}
-               /^pkgname = /{print $3 "-" version "-" arch ".pkg.tar.zst"}' \
-               version=$(get_package_version "$1") \
+        | awk '$1=="pkgver"{pkgver=$3}
+               $1=="pkgrel"{pkgrel=$3}
+               $1=="arch"&&$3=="any"{arch=$3}
+               /^pkgname = /{print $3 "-" pkgver "-" pkgrel "-" arch ".pkg.tar.zst"}' \
                arch="$(uname -m)"
 }
 
