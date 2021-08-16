@@ -40,7 +40,7 @@ init_repository() {
 prepare_chroot() {
     if [ ! -d "$LIB/build" ]; then
         _cmd root mkdir -p "$LIB/build"
-        _cmd root mkarchroot -C /etc/pacman.conf "$LIB/build/root" base-devel
+        _cmd root mkarchroot -C /etc/pacman.conf "$LIB/build/root" base-devel devtools
     fi
     _cmd root arch-nspawn "$LIB/build/root" pacman -Syu --noprogress --color never --noconfirm
 }
