@@ -62,7 +62,7 @@ get_package_version() {
         | awk '$1=="pkgver"{pkgver=$3}
                $1=="pkgrel"{pkgrel=$3}
                $1=="epoch"{epoch=$3}
-               END{print epoch (epoch?":":"") pkgver "-" pkgrel}'
+               END{print epoch (epoch ? ":" : "") pkgver "-" pkgrel}'
 }
 
 get_package_filenames() {
@@ -71,7 +71,7 @@ get_package_filenames() {
                $1=="pkgrel"{pkgrel=$3}
                $1=="epoch"{epoch=$3}
                $1=="arch"&&$3=="any"{arch=$3}
-               /^pkgname = /{print $3 "-" epoch (epoch?":":"") pkgver "-" pkgrel "-" arch ".pkg.tar.zst"}' \
+               /^pkgname = /{print $3 "-" epoch (epoch ? ":" : "") pkgver "-" pkgrel "-" arch ".pkg.tar.zst"}' \
                arch="$(uname -m)"
 }
 
