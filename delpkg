@@ -1,0 +1,6 @@
+#!/bin/bash
+. pacbuild.conf
+PKG=$1
+VER="$(pacman -Sl | awk '$1==name && $2==pkg {print $3}' name=$NAME pkg=$PKG)"
+repo-remove $LIB/pkg/$NAME.db.tar.gz $PKG
+rm -v "$LIB/pkg/$PKG-$VER-"*".pkg.tar.zst"
