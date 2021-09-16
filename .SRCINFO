@@ -1,0 +1,15 @@
+pkgbase = pacbuild-git
+	pkgdesc = Script that creates packages for a Pacman repository
+	pkgver = 0.2
+	pkgrel = 1
+	url = https://github.com/j0057/pacbuild
+	arch = any
+	license = GPL3
+	makedepends = git
+	depends = devtools
+	provides = pacbuild
+	conflicts = pacbuild
+	source = pacbuild
+	md5sums = SKIP
+
+pkgname = pacbuild-git

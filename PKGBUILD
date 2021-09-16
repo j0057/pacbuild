@@ -1,7 +1,7 @@
 # Maintainer: Joost Molenaar <jjm@j0057.nl>
 
 pkgname=pacbuild-git
-pkgver=0.1
+pkgver=0.2
 pkgrel=1
 pkgdesc='Script that creates packages for a Pacman repository'
 arch=('any')
