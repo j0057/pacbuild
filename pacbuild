@@ -9,6 +9,11 @@ _msg3() { local N=$1; shift; echo -e "\e[1;31m[$N] $@\e[0m"; }
 _cmd()  { local N=$1; shift; _msg1 "$N" "$@";      "$@"; }
 _sudo() { local N=$1; shift; _msg3 "$N" "$@"; sudo "$@"; }
 
+if [ $(id -u) = 0 ]; then
+    _msg3 user 'error: do not run this as root, will sudo when needed' >&2
+    exit 1
+fi
+
 if [ -f pacbuild.conf ]; then
     . pacbuild.conf
     : ${NAME:?NAME not set}
